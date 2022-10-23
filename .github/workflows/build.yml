@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v2
     - name: Mill cache
@@ -53,9 +53,9 @@ jobs:
       run:
         ./mill --no-server --disable-ticker __.test
   publish-sonatype:
-    if: github.repository == 'lolgab/mill-scalablytyped' && contains(github.ref, 'refs/tags/')
+    if: github.repository == 'lolgab/mill-crossplatform' && contains(github.ref, 'refs/tags/')
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       SONATYPE_PGP_PRIVATE_KEY: ${{ secrets.SONATYPE_PGP_PRIVATE_KEY }}
       SONATYPE_PGP_PRIVATE_KEY_PASSWORD: ${{ secrets.SONATYPE_PGP_PRIVATE_KEY_PASSWORD }}

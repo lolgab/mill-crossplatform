@@ -1,89 +1,122 @@
-# Scalablytyped Mill Plugin
+# CrossPlatform Mill Plugin
 
-Mill Plugin for [Scalablytyped](https://scalablytyped.org)
+Mill Plugin to simplify Cross platform Mill projects
 
 ## Getting Started
 
-The preferred way is to create a module in a separate build file.
-You need to create a `scalablytyped.sc` file like:
+Here you can see a basic example using mill-crossplatform
 
 ```scala
-import mill._, mill.scalalib._, mill.scalajslib._
-import $ivy.`com.github.lolgab::mill-scalablytyped::0.0.7`
-import com.github.lolgab.mill.scalablytyped._
+import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
+import $ivy.`com.github.lolgab::mill-crossplatform::0.0.1`
+import com.github.lolgab.mill.crossplatform._
 
-object `scalablytyped-module` extends ScalaJSModule with ScalablyTyped {
-  def scalaVersion = "3.1.3"
-  def scalaJSVersion = "1.10.1"
+trait CommonNative extends ScalaNativeModule {
+  def scalaNativeVersion = "0.4.7"
+}
+trait CommonJS extends ScalaJSModule {
+  def scalaJSVersion = "1.11.0"
+}
+
+object core extends CrossPlatform {
+  trait Shared extends CrossPlatformBase {
+    // common settings here
+    def crossScalaVersion = "2.13.8"
+  }
+  object jvm extends Shared {
+    // jvm specific settings here
+  }
+  object js extends Shared with CommonJS {
+    // js specific settings here
+  }
+  object native extends Shared with CommonNative {
+    // native specific settings here
+  }
+}
+
+object other extends CrossPlatform {
+  // root moduleDeps are correctly applied
+  // to all platform submodules
+  def moduleDeps = Seq(core)
+  trait Shared extends CrossPlatformBase {
+    // common settings here
+  }
+  object jvm extends Shared
+  object js extends Shared with CommonJS
+  object native extends Shared with CommonNative
+}
+```
+## Advanced use cases
+
+## Platform specific code
+
+You can place platform specific code in:
+
+```scala
+// jvm specific code
+millSourcePath / "jvm" / "src"
+
+// directory used in js and jvm modules but not in native
+// the directory names are sorted alphabetically.
+// it's `js-jvm`, not `jvm-js`.
+millSourcePath / "js-jvm" / "src"
+
+// code shared between js and native
+// used when the scalaVersion is a Scala 3
+// version
+millSourcePath / "js-native" / "src-3"
+```
+
+
+### Supporting multiple Scala versions
+
+It is possible to use `CrossPlatform` together with `Cross`
+to cross-compile for multiple Scala versions:
+
+```scala
+import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
+import $ivy.`com.github.lolgab::mill-crossplatform::0.0.1`
+import com.github.lolgab.mill.crossplatform._
+
+trait CommonNative extends ScalaNativeModule {
+  def scalaNativeVersion = "0.4.7"
+}
+trait CommonJS extends ScalaJSModule {
+  def scalaJSVersion = "1.11.0"
+}
+
+val scalaVersions = Seq("2.13.10", "3.2.0")
+
+object core extends Cross[CoreModule](scalaVersions: _*)
+object CoreModule(val crossScalaVersion: String) extends CrossPlatform {
+  trait Shared extends CrossPlatformBase
+  object jvm extends Shared
+  object js extends Shared with CommonJS
+  object native extends Shared with CommonNative
 }
 ```
 
-Then you can import this module in your `build.sc` file:
+### Supporting multiple Scala.js / Native versions
+
+It is possible to use `CrossPlatform` together with `Cross`
+in the inner modules to cross-compile for multiple Scala.js / Scala Native versions.
+Root `moduleDeps` and `compileModuleDeps` work as expected
 
 ```scala
-import $file.scalablytyped
-import mill._, mill.scalalib._, mill.scalajslib._
+import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
+import $ivy.`com.github.lolgab::mill-crossplatform::0.0.1`
+import com.github.lolgab.mill.crossplatform._
 
-object app extends ScalaJSModule {
-  def scalaVersion = "3.1.3"
-  def scalaJSVersion = "1.10.1"
-  def moduleDeps = Seq(scalablytyped.`scalablytyped-module`)
+val scalaVersions = Seq("2.13.10", "3.2.0")
+val scalaJSVersions = Seq("0.6.33", "1.11.0")
+
+object core extends Cross[CoreModule](scalaVersions: _*)
+object CoreModule(val crossScalaVersion: String) extends CrossPlatform {
+  trait Shared extends CrossPlatformBase
+  object jvm extends Shared
+  object js extends Cross[JSModule](scalaJSVersions: _*)
+  // the cross-module should have only one parameter named `val crossScalaJSVersion: String`
+  // for it to work correctly
+  class JSModule(val crossScalaJSVersion: String) extends Shared with CommonJS
 }
 ```
-
-After that it will scan the directory for a `package.json` file and a `node_module` directory.
-It will run ScalablyTyped to convert the libraries in `package.json` and then add them to `ivyDeps`.
-
-### Mill version note
-
-Make sure to use a Mill version greater than `0.10.1` otherwise the changes to the `build.sc` file will
-re-trigger the Scalablytyped converter.
-Also make sure that `import $file.scalablytyped` is one of the first imports in your `build.sc`, because
-Ammonite recompiles all the next imported classes when a imported file changes. If the scalablytyped file
-is imported earlier, there are less chances of doing useless recompilations with ScalablyTyped.
-
-## Configuration
-
-### scalablyTypedBasePath
-
-The base path where package.json and node_modules are.
-Defaults to the project root directory (the directory of `build.sc`).
-
-### scalablyTypedIgnoredLibs
-
-The typescript dependencies to ignore during the conversion
-
-### scalablyTypedFlavour
-
-The React flavour used by ScalablyTyped
-Can be one of `Flavour.Normal`, `Flavour.Slinky`, `Flavour.SlinkyNative` and `Flavour.ScalajsReact` 
-
-## Changelog
-
-### 0.0.7
-
-Update ScalablyTyped to `1.0.0-beta39`
-
-### 0.0.6
-
-Update ScalablyTyped to `1.0.0-beta38`
-
-### 0.0.5
-
-Add support for `scalablyTypedFlavour`
-
-### 0.0.4
-
-Bump vulnerable log4j dependency
-
-### 0.0.3
-
-Improve error messages on failure
-
-### 0.0.2
-
-Add `scalablyTypedBasePath` and `scalablyTypedIgnoredLibs` configurations
-
-### 0.0.1
-
-First release
