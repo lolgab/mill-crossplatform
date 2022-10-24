@@ -15,16 +15,38 @@ trait CrossScalaNativeModule extends ScalaJSModule {
 }
 
 trait CrossPlatform extends Module { container =>
-  def crossScalaVersion: String
   def moduleDeps: Seq[CrossPlatform] = Seq.empty
   def compileModuleDeps: Seq[CrossPlatform] = Seq.empty
-  trait CrossPlatformBase extends CrossScalaModule {
+  trait CrossPlatformCrossScalaModule
+      extends CrossPlatformScalaModule
+      with CrossScalaModule {
+    private type WithCrossScalaVersion = {
+      def crossScalaVersion: String
+    }
+    override def crossScalaVersion: String =
+      try {
+        container.asInstanceOf[WithCrossScalaVersion].crossScalaVersion
+      } catch {
+        case _: NoSuchMethodException =>
+          throw new Exception(
+            s"""$container should define `val crossScalaVersion: String`.
+               |If you have a single Scala version use `extends CrossPlatformScalaModule`
+               |instead of `extends CrossPlatformCrossScalaModule`""".stripMargin
+          )
+      }
+  }
+  trait CrossPlatformScalaModule extends ScalaModule {
     override def millSourcePath = super.millSourcePath / os.up
-    override def crossScalaVersion: String = container.crossScalaVersion
+    override def artifactName: T[String] = this match {
+      case _: CrossScalaModule =>
+        millModuleSegments.parts.dropRight(2).mkString("-")
+      case _ =>
+        millModuleSegments.parts.init.mkString("-")
+    }
     override def moduleDeps = super.moduleDeps ++
-      container.moduleDeps.map(innerModule)
+      container.moduleDeps.map(innerModule).asInstanceOf[Seq[this.type]]
     override def compileModuleDeps = super.compileModuleDeps ++
-      container.compileModuleDeps.map(innerModule)
+      container.compileModuleDeps.map(innerModule).asInstanceOf[Seq[this.type]]
 
     private def innerModule(mod: CrossPlatform) = this match {
       case thisModule: ScalaNativeModule =>
@@ -52,6 +74,10 @@ trait CrossPlatform extends Module { container =>
       }
     }
 
+    private type WithDirNames = {
+      def scalaVersionDirectoryNames: Seq[String]
+    }
+
     private def platformSources(baseDir: os.Path) = {
       Agg(
         PathRef(baseDir / platform / "src")
@@ -61,17 +87,24 @@ trait CrossPlatform extends Module { container =>
           PathRef(
             baseDir / combination.mkString("-") / "src"
           )
-        ) ++ scalaVersionDirectoryNames.flatMap(name =>
-        Agg(
-          PathRef(baseDir / platform / s"src-$name")
-        ) ++ CrossPlatform.platformCombinations
-          .filter(_.contains(platform))
-          .map(combination =>
-            PathRef(
-              baseDir / combination.mkString("-") / s"src-$name"
+        ) ++ (this match {
+        case _: CrossScalaModule =>
+          this
+            .asInstanceOf[WithDirNames]
+            .scalaVersionDirectoryNames
+            .flatMap(name =>
+              Agg(
+                PathRef(baseDir / platform / s"src-$name")
+              ) ++ CrossPlatform.platformCombinations
+                .filter(_.contains(platform))
+                .map(combination =>
+                  PathRef(
+                    baseDir / combination.mkString("-") / s"src-$name"
+                  )
+                )
             )
-          )
-      )
+        case _ => Agg()
+      })
     }
   }
 }

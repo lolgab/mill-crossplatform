@@ -19,7 +19,7 @@ trait CommonNative extends ScalaNativeModule {
 object other extends Cross[OtherCross](scalaVersions: _*)
 class OtherCross(val crossScalaVersion: String) extends CrossPlatform {
   def moduleDeps = Seq(core(crossScalaVersion))
-  trait Shared extends CrossPlatformBase
+  trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Shared with CommonJS
   object native extends Shared with CommonNative
@@ -28,14 +28,14 @@ class OtherCross(val crossScalaVersion: String) extends CrossPlatform {
 object `no-native` extends Cross[NoNativeCross](scalaVersions: _*)
 class NoNativeCross(val crossScalaVersion: String) extends CrossPlatform {
   def moduleDeps = Seq(other(crossScalaVersion))
-  trait Shared extends CrossPlatformBase
+  trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Shared with CommonJS
 }
 
 object core extends Cross[CoreModule](scalaVersions: _*)
 class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
-  trait Shared extends CrossPlatformBase
+  trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Shared with CommonJS
   object native extends Shared with CommonNative
