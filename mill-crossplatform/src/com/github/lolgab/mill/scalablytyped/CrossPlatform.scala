@@ -23,6 +23,8 @@ trait CrossPlatform extends Module { container =>
     private type WithCrossScalaVersion = {
       def crossScalaVersion: String
     }
+    override def artifactName: T[String] =
+      millModuleSegments.parts.dropRight(2).mkString("-")
     override def crossScalaVersion: String =
       try {
         container.asInstanceOf[WithCrossScalaVersion].crossScalaVersion
@@ -37,12 +39,8 @@ trait CrossPlatform extends Module { container =>
   }
   trait CrossPlatformScalaModule extends ScalaModule {
     override def millSourcePath = super.millSourcePath / os.up
-    override def artifactName: T[String] = this match {
-      case _: CrossScalaModule =>
-        millModuleSegments.parts.dropRight(2).mkString("-")
-      case _ =>
-        millModuleSegments.parts.init.mkString("-")
-    }
+    override def artifactName: T[String] =
+      millModuleSegments.parts.init.mkString("-")
     override def moduleDeps = super.moduleDeps ++
       container.moduleDeps.map(innerModule).asInstanceOf[Seq[this.type]]
     override def compileModuleDeps = super.compileModuleDeps ++
