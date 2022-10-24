@@ -8,7 +8,7 @@ Here you can see a basic example using mill-crossplatform
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.0.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.0.3`
 import com.github.lolgab.mill.crossplatform._
 
 trait Common extends ScalaModule {
@@ -49,6 +49,20 @@ object other extends CrossPlatform {
   object native extends Shared with CommonNative
 }
 ```
+
+## Known issues
+
+### Issues with `PublishModule`s
+
+Mill had [a bug](https://github.com/com-lihaoyi/mill/issues/2082) handling `moduleDeps` in super traits when `PublishModules`.
+If you use `PublishModule` you need to update Mill to a version higher on equal than
+`0.10.8-9-dd81ad`
+
+### `Cross` module with different sets of Scala versions
+
+Having different Scala versions for the various platform is not supported.
+This plugin assumes that all platforms share the same `scalaVersion`.
+
 ## Advanced use cases
 
 ## Platform specific code
@@ -78,7 +92,7 @@ to cross-compile for multiple Scala versions:
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.0.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.0.3`
 import com.github.lolgab.mill.crossplatform._
 
 trait CommonNative extends ScalaNativeModule {
@@ -108,7 +122,7 @@ Root `moduleDeps` and `compileModuleDeps` work as expected
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.0.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.0.3`
 import com.github.lolgab.mill.crossplatform._
 
 val scalaVersions = Seq("2.13.0", "3.2.0")
