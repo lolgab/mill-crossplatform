@@ -7,11 +7,11 @@ import mill.scalanativelib._
 
 trait CrossScalaJSModule extends ScalaJSModule {
   def crossScalaJSVersion: String
-  def scalaJSVersion = crossScalaJSVersion
+  override def scalaJSVersion = crossScalaJSVersion
 }
-trait CrossScalaNativeModule extends ScalaJSModule {
+trait CrossScalaNativeModule extends ScalaNativeModule {
   def crossScalaNativeVersion: String
-  def scalaNativeVersion = crossScalaNativeVersion
+  override def scalaNativeVersion = crossScalaNativeVersion
 }
 
 trait CrossPlatform extends Module { container =>
