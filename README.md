@@ -54,9 +54,8 @@ object other extends CrossPlatform {
 
 ### Issues with `PublishModule`s
 
-Mill had [a bug](https://github.com/com-lihaoyi/mill/issues/2082) handling `moduleDeps` in super traits when `PublishModules`.
-If you use `PublishModule` you need to update Mill to a version higher on equal than
-`0.10.8-9-dd81ad`
+Mill had [a bug](https://github.com/com-lihaoyi/mill/issues/2082) handling `moduleDeps` in super traits when `PublishModule`s.
+If you use `PublishModule` you need to update Mill to a version higher on equal than `0.10.9`
 
 ### `Cross` module with different sets of Scala versions
 
@@ -133,7 +132,7 @@ class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared
   // the cross-module should have only one parameter named `val crossScalaJSVersion: String`
-  // for it to work correctly. Extend `CrossScalaJSModule` to which requires it.
+  // for it to work correctly. Extend `CrossScalaJSModule` which requires it.
   class JSModule(val crossScalaJSVersion: String) extends Shared with CrossScalaJSModule
   object js extends Cross[JSModule](scalaJSVersions: _*)
 }
