@@ -10,10 +10,12 @@ import scala.language.reflectiveCalls
 trait CrossScalaJSModule extends ScalaJSModule {
   def crossScalaJSVersion: String
   override def scalaJSVersion = crossScalaJSVersion
+  override def millSourcePath = super.millSourcePath / os.up
 }
 trait CrossScalaNativeModule extends ScalaNativeModule {
   def crossScalaNativeVersion: String
   override def scalaNativeVersion = crossScalaNativeVersion
+  override def millSourcePath = super.millSourcePath / os.up
 }
 
 trait CrossPlatform extends Module { container =>
