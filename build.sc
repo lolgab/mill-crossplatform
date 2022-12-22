@@ -68,16 +68,4 @@ class itestCross(millVersion: String) extends MillIntegrationTestModule {
     `mill-crossplatform`(millBinaryVersion(millVersion))
   )
   def testBase = millSourcePath / "src"
-  def testInvocations = T {
-    Seq(
-      PathRef(testBase / "simple") -> Seq(
-        TestInvocation.Targets(Seq("verify"))
-      ),
-      PathRef(testBase / "disable-platform") -> Seq(
-        TestInvocation.Targets(Seq("verifyJVM"), expectedExitCode = 1),
-        TestInvocation.Targets(Seq("verifyJS"), expectedExitCode = 1),
-        TestInvocation.Targets(Seq("verifyNative"), expectedExitCode = 1)
-      )
-    )
-  }
 }
