@@ -17,8 +17,25 @@ trait CrossScalaNativeModule extends ScalaNativeModule {
 }
 
 trait CrossPlatform extends Module { container =>
+  CrossPlatform.checkMillVersion()
   def moduleDeps: Seq[CrossPlatform] = Seq.empty
   def compileModuleDeps: Seq[CrossPlatform] = Seq.empty
+
+  def enableJVM: Boolean = true
+  def enableJS: Boolean = true
+  def enableNative: Boolean = true
+
+  private def enableModuleCondition(module: Module): Boolean = module match {
+    case _: ScalaNativeModule => enableNative
+    case _: ScalaJSModule     => enableJS
+    case _: ScalaModule       => enableJVM
+  }
+  override lazy val millModuleDirectChildren: Seq[Module] =
+    millInternal
+      .reflectNestedObjects[Module]
+      .filter(enableModuleCondition)
+      .toSeq
+
   trait CrossPlatformCrossScalaModule
       extends CrossPlatformScalaModule
       with CrossScalaModule {
@@ -173,4 +190,17 @@ object CrossPlatform {
   }
   private val platformCombinations =
     Seq("js", "jvm", "native").combinations(2).toSeq
+
+  private def checkMillVersion() = {
+    val isMillVersionOk = BuildInfo.millVersion match {
+      case s"0.10.$n-$_" => n.toIntOption.exists(n => n >= 9)
+      case s"0.10.$n"    => n.toIntOption.exists(n => n >= 9)
+      case s"0.1$_"      => true
+      case s"0.$_"       => false
+    }
+    require(
+      isMillVersionOk,
+      s"Minimum supported version of Mill is `0.10.9`. You are using `${BuildInfo.millVersion}`."
+    )
+  }
 }

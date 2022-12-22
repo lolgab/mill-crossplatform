@@ -10,7 +10,7 @@ val scalaVersions = Seq("2.13.8", "3.2.0")
 
 trait CommonJVM extends ScalaModule
 trait CommonJS extends ScalaJSModule {
-  def scalaJSVersion = "1.11.0"
+  def scalaJSVersion = "1.12.0"
 }
 trait CommonNative extends ScalaNativeModule {
   def scalaNativeVersion = "0.4.7"
