@@ -31,6 +31,9 @@ trait CrossPlatform extends Module { container =>
     case _: ScalaNativeModule => enableNative
     case _: ScalaJSModule     => enableJS
     case _: ScalaModule       => enableJVM
+    case c: Cross[_] =>
+      enableModuleCondition(c.items.head._2.asInstanceOf[Module])
+    case _ => true
   }
   override lazy val millModuleDirectChildren: Seq[Module] =
     millInternal
