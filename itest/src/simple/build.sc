@@ -27,7 +27,7 @@ class OtherCross(val crossScalaVersion: String) extends CrossPlatform {
 
 object `no-native` extends Cross[NoNativeCross](scalaVersions: _*)
 class NoNativeCross(val crossScalaVersion: String) extends CrossPlatform {
-  def moduleDeps = Seq(other(crossScalaVersion))
+  def moduleDeps = Seq(other())
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Shared with CommonJS
