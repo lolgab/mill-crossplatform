@@ -6,7 +6,7 @@ import mill.scalajslib._
 import mill.scalanativelib._
 import com.github.lolgab.mill.crossplatform._
 
-val scalaVersions = Seq("2.13.8", "3.2.0")
+val scalaVersions = Seq("2.13.10", "3.2.1")
 
 trait CommonJVM extends ScalaModule
 trait CommonJS extends ScalaJSModule {
@@ -42,6 +42,6 @@ class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
 }
 
 def verify() = T.command {
-  `no-native`("3.2.0").jvm.compile()
+  `no-native`("3.2.1").jvm.compile()
   ()
 }
