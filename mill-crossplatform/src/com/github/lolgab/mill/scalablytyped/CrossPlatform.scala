@@ -1,6 +1,7 @@
 package com.github.lolgab.mill.crossplatform
 
 import mill._
+import mill.define.Cross.Resolver
 import mill.scalajslib._
 import mill.scalalib._
 import mill.scalanativelib._
@@ -41,12 +42,45 @@ trait CrossPlatform extends Module { container =>
       .filter(enableModuleCondition)
       .toSeq
 
+  private type WithCrossScalaVersion = {
+    def crossScalaVersion: String
+  }
+  private def getCrossScalaVersion: String = {
+    try {
+      this.asInstanceOf[WithCrossScalaVersion].crossScalaVersion
+    } catch {
+      case _: NoSuchMethodException =>
+        throw new Exception(
+          s"$this doesn't define `val crossScalaVersion: String`."
+        )
+    }
+  }
+  // copy pasted from https://github.com/com-lihaoyi/mill/blob/6247fafc43c1d7dd58e36e920c010b0997832c02/scalalib/src/CrossModuleBase.scala#L17
+  implicit def crossPlatformResolver: Resolver[CrossPlatform] =
+    new Resolver[CrossPlatform] {
+      def resolve[V <: CrossPlatform](c: Cross[V]): V = {
+        val scalaV = getCrossScalaVersion
+        scalaV
+          .split('.')
+          .inits
+          .takeWhile(_.length > 1)
+          .flatMap(prefix =>
+            c.items
+              .map(_._2)
+              .find(_.getCrossScalaVersion.split('.').startsWith(prefix))
+          )
+          .collectFirst { case x => x }
+          .getOrElse(
+            throw new Exception(
+              s"Unable to find compatible cross version between $scalaV and " +
+                c.items.map(_._2.getCrossScalaVersion).mkString(",")
+            )
+          )
+      }
+    }
   trait CrossPlatformCrossScalaModule
       extends CrossPlatformScalaModule
       with CrossScalaModule {
-    private type WithCrossScalaVersion = {
-      def crossScalaVersion: String
-    }
     override def artifactName: T[String] =
       millModuleSegments.parts.dropRight(2).mkString("-")
     override def crossScalaVersion: String =
