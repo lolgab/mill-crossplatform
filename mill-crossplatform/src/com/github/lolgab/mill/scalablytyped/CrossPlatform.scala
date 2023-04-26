@@ -12,11 +12,17 @@ trait CrossScalaJSModule extends ScalaJSModule {
   def crossScalaJSVersion: String
   override def scalaJSVersion = crossScalaJSVersion
   override def millSourcePath = super.millSourcePath / os.up
+  override def artifactName: T[String] = T {
+    super.artifactName().split('-').init.mkString("-")
+  }
 }
 trait CrossScalaNativeModule extends ScalaNativeModule {
   def crossScalaNativeVersion: String
   override def scalaNativeVersion = crossScalaNativeVersion
   override def millSourcePath = super.millSourcePath / os.up
+  override def artifactName: T[String] = T {
+    super.artifactName().split('-').init.mkString("-")
+  }
 }
 
 trait CrossPlatform extends Module { container =>
