@@ -14,7 +14,7 @@ trait CommonJVM extends ScalaModule {
   def scalaVersion = "2.13.10"
 }
 trait CommonJS extends CommonJVM with ScalaJSModule {
-  def scalaJSVersion = "1.12.0"
+  def scalaJSVersion = "1.13.1"
 }
 object jvm extends CrossPlatform {
   def enableJVM = false
