@@ -1,4 +1,4 @@
-import $exec.plugins
+import $file.plugins
 
 import mill._
 import mill.api.Result
@@ -21,7 +21,7 @@ trait CommonNative extends ScalaNativeModule {
 }
 
 object other extends Cross[OtherCross](scalaVersions: _*)
-class OtherCross(val crossScalaVersion: String) extends CrossPlatform {
+class OtherCross(val crossScalaVersion: String) extends CrossPlatform.Cross {
   def moduleDeps = Seq(core(crossScalaVersion))
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
@@ -30,7 +30,8 @@ class OtherCross(val crossScalaVersion: String) extends CrossPlatform {
 }
 
 object `no-native` extends Cross[NoNativeCross](scalaVersions: _*)
-class NoNativeCross(val crossScalaVersion: String) extends CrossPlatform {
+class NoNativeCross(val crossScalaVersion: String)
+    extends CrossPlatformCrossScala {
   def moduleDeps = Seq(other())
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
@@ -38,7 +39,8 @@ class NoNativeCross(val crossScalaVersion: String) extends CrossPlatform {
 }
 
 object core extends Cross[CoreModule](scalaVersions: _*)
-class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
+class CoreModule(val crossScalaVersion: String)
+    extends CrossPlatformCrossScala {
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Shared with CommonJS

@@ -1,29 +1,11 @@
 package com.github.lolgab.mill.crossplatform
 
 import mill._
-import mill.define.Cross.Resolver
 import mill.scalajslib._
 import mill.scalalib._
 import mill.scalanativelib._
 
 import scala.language.reflectiveCalls
-
-trait CrossScalaJSModule extends ScalaJSModule {
-  def crossScalaJSVersion: String
-  override def scalaJSVersion = crossScalaJSVersion
-  override def millSourcePath = super.millSourcePath / os.up
-  override def artifactName: T[String] = T {
-    super.artifactName().split('-').init.mkString("-")
-  }
-}
-trait CrossScalaNativeModule extends ScalaNativeModule {
-  def crossScalaNativeVersion: String
-  override def scalaNativeVersion = crossScalaNativeVersion
-  override def millSourcePath = super.millSourcePath / os.up
-  override def artifactName: T[String] = T {
-    super.artifactName().split('-').init.mkString("-")
-  }
-}
 
 trait CrossPlatform extends Module { container =>
   CrossPlatform.checkMillVersion()
@@ -38,8 +20,10 @@ trait CrossPlatform extends Module { container =>
     case _: ScalaNativeModule => enableNative
     case _: ScalaJSModule     => enableJS
     case _: ScalaModule       => enableJVM
-    case c: Cross[_] =>
-      enableModuleCondition(c.items.head._2.asInstanceOf[Module])
+    case VersionSpecific.IsCross(c) =>
+      enableModuleCondition(
+        VersionSpecific.getModules(c).head.asInstanceOf[Module]
+      )
     case _ => true
   }
   override lazy val millModuleDirectChildren: Seq[Module] =
@@ -48,60 +32,8 @@ trait CrossPlatform extends Module { container =>
       .filter(enableModuleCondition)
       .toSeq
 
-  private type WithCrossScalaVersion = {
-    def crossScalaVersion: String
-  }
-  private def getCrossScalaVersion: String = {
-    try {
-      this.asInstanceOf[WithCrossScalaVersion].crossScalaVersion
-    } catch {
-      case _: NoSuchMethodException =>
-        throw new Exception(
-          s"$this doesn't define `val crossScalaVersion: String`."
-        )
-    }
-  }
-  // copy pasted from https://github.com/com-lihaoyi/mill/blob/6247fafc43c1d7dd58e36e920c010b0997832c02/scalalib/src/CrossModuleBase.scala#L17
-  implicit def crossPlatformResolver: Resolver[CrossPlatform] =
-    new Resolver[CrossPlatform] {
-      def resolve[V <: CrossPlatform](c: Cross[V]): V = {
-        val scalaV = getCrossScalaVersion
-        scalaV
-          .split('.')
-          .inits
-          .takeWhile(_.length > 1)
-          .flatMap(prefix =>
-            c.items
-              .map(_._2)
-              .find(_.getCrossScalaVersion.split('.').startsWith(prefix))
-          )
-          .collectFirst { case x => x }
-          .getOrElse(
-            throw new Exception(
-              s"Unable to find compatible cross version between $scalaV and " +
-                c.items.map(_._2.getCrossScalaVersion).mkString(",")
-            )
-          )
-      }
-    }
-  trait CrossPlatformCrossScalaModule
-      extends CrossPlatformScalaModule
-      with CrossScalaModule {
-    override def artifactName: T[String] =
-      millModuleSegments.parts.dropRight(2).mkString("-")
-    override def crossScalaVersion: String =
-      try {
-        container.asInstanceOf[WithCrossScalaVersion].crossScalaVersion
-      } catch {
-        case _: NoSuchMethodException =>
-          throw new Exception(
-            s"""$container should define `val crossScalaVersion: String`.
-               |If you have a single Scala version use `extends CrossPlatformScalaModule`
-               |instead of `extends CrossPlatformCrossScalaModule`""".stripMargin
-          )
-      }
-  }
-  trait CrossPlatformScalaModule extends ScalaModule {
+  trait CrossPlatformScalaModule
+      extends VersionSpecific.CrossPlatformScalaModule {
     override def millSourcePath = super.millSourcePath / os.up
     override def artifactName: T[String] =
       millModuleSegments.parts.init.mkString("-")

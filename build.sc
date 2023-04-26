@@ -43,10 +43,11 @@ class MillcrossplatformCross(millBinaryVersion: String)
   override def millSourcePath = super.millSourcePath / os.up
   override def artifactName = s"mill-crossplatform_mill$millBinaryVersion"
 
-  override def sources = T.sources(
-    super.sources() ++ Seq(millSourcePath / s"src-mill$millBinaryVersion")
-      .map(PathRef(_))
-  )
+  override def sources = T.sources {
+    super.sources() ++ Seq(
+      millSourcePath / s"src-mill${millVersion(millBinaryVersion).split('.').take(2).mkString(".")}"
+    ).map(PathRef(_))
+  }
   def scalaVersion = BuildInfo.scalaVersion
   override def compileIvyDeps = super.compileIvyDeps() ++ Agg(
     ivy"com.lihaoyi::mill-scalalib:${millVersion(millBinaryVersion)}",
@@ -62,7 +63,8 @@ class MillcrossplatformCross(millBinaryVersion: String)
 
 object itest extends Cross[itestCross]("0.10.12", "0.11.0-M8")
 class itestCross(millVersion: String) extends MillIntegrationTestModule {
-  override def millSourcePath: Path = super.millSourcePath / os.up
+  override def millSourcePath: Path =
+    super.millSourcePath / os.up / millVersion.split('.').take(2).mkString(".")
   def millTestVersion = millVersion
   def pluginsUnderTest = Seq(
     `mill-crossplatform`(millBinaryVersion(millVersion))
