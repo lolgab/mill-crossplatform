@@ -5,12 +5,14 @@ import mill.define.Cross
 import mill.scalalib._
 import mill.scalajslib._
 
-trait CrossPlatformCrossScala extends CrossPlatform { container =>
+trait CrossPlatformAndScala extends CrossPlatform { container =>
+
+  def crossScalaVersion: String
 
   // copy pasted from https://github.com/com-lihaoyi/mill/blob/6247fafc43c1d7dd58e36e920c010b0997832c02/scalalib/src/CrossModuleBase.scala#L17
-  implicit def crossPlatformResolver: Cross.Resolver[CrossPlatformCrossScala] =
-    new Cross.Resolver[CrossPlatformCrossScala] {
-      def resolve[V <: CrossPlatformCrossScala](c: Cross[V]): V = {
+  implicit def crossPlatformResolver: Cross.Resolver[CrossPlatformAndScala] =
+    new Cross.Resolver[CrossPlatformAndScala] {
+      def resolve[V <: CrossPlatformAndScala](c: Cross[V]): V = {
         val scalaV = getCrossScalaVersion
         scalaV
           .split('.')
@@ -40,17 +42,7 @@ trait CrossPlatformCrossScala extends CrossPlatform { container =>
     override def artifactName: T[String] =
       millModuleSegments.parts.dropRight(2).mkString("-")
 
-    override def crossScalaVersion: String =
-      try {
-        container.asInstanceOf[WithCrossScalaVersion].crossScalaVersion
-      } catch {
-        case _: NoSuchMethodException =>
-          throw new Exception(
-            s"""$container should define `val crossScalaVersion: String`.
-               |If you have a single Scala version use `extends CrossPlatformScalaModule`
-               |instead of `extends CrossPlatformCrossScalaModule`""".stripMargin
-          )
-      }
+    override def crossScalaVersion: String = container.crossScalaVersion
   }
 
   private type WithCrossScalaVersion = {
