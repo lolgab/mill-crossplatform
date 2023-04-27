@@ -1,13 +1,15 @@
 package com.github.lolgab.mill.crossplatform
 
 import mill._
+import mill.define.Cross
 import mill.scalajslib._
 import mill.scalalib._
 import mill.scalanativelib._
 
 import scala.language.reflectiveCalls
 
-trait CrossPlatform extends Module { container =>
+trait CrossPlatform extends Module with VersionSpecific.CrossPlatform {
+  container =>
   CrossPlatform.checkMillVersion()
   def moduleDeps: Seq[CrossPlatform] = Seq.empty
   def compileModuleDeps: Seq[CrossPlatform] = Seq.empty
@@ -32,8 +34,7 @@ trait CrossPlatform extends Module { container =>
       .filter(enableModuleCondition)
       .toSeq
 
-  trait CrossPlatformScalaModule
-      extends VersionSpecific.CrossPlatformScalaModule {
+  trait CrossPlatformScalaModule extends ScalaModule {
     override def millSourcePath = super.millSourcePath / os.up
     override def artifactName: T[String] =
       millModuleSegments.parts.init.mkString("-")
@@ -100,6 +101,41 @@ trait CrossPlatform extends Module { container =>
         case _ => Agg()
       })
     }
+  }
+
+  // copy pasted from https://github.com/com-lihaoyi/mill/blob/6247fafc43c1d7dd58e36e920c010b0997832c02/scalalib/src/CrossModuleBase.scala#L17
+  implicit def crossPlatformResolver: Cross.Resolver[CrossPlatform] =
+    new Cross.Resolver[CrossPlatform] {
+      def resolve[V <: CrossPlatform](c: Cross[V]): V = {
+        val scalaV = myCrossValue
+        scalaV
+          .split('.')
+          .inits
+          .takeWhile(_.length > 1)
+          .flatMap(prefix =>
+            VersionSpecific
+              .getModules(c)
+              .find(_.myCrossValue.split('.').startsWith(prefix))
+          )
+          .collectFirst { case x => x }
+          .getOrElse(
+            throw new Exception(
+              s"Unable to find compatible cross version between $scalaV and " +
+                VersionSpecific
+                  .getModules(c)
+                  .map(_.myCrossValue)
+                  .mkString(",")
+            )
+          )
+      }
+    }
+
+  trait CrossPlatformCrossScalaModule
+      extends CrossPlatformScalaModule
+      with CrossScalaModule
+      with VersionSpecific.CrossPlatformCrossScalaModule {
+    private[crossplatform] protected def myCrossValue: String =
+      container.myCrossValue
   }
 }
 object CrossPlatform {

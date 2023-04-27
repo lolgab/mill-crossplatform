@@ -21,8 +21,8 @@ trait CommonNative extends ScalaNativeModule {
 }
 
 object other extends Cross[OtherCross](scalaVersions: _*)
-class OtherCross(val crossScalaVersion: String) extends CrossPlatformAndScala {
-  def moduleDeps = Seq(core(crossScalaVersion))
+class OtherCross(val crossScalaVersion: String) extends CrossPlatform {
+  def moduleDeps = Seq(core())
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Shared with CommonJS
@@ -31,7 +31,7 @@ class OtherCross(val crossScalaVersion: String) extends CrossPlatformAndScala {
 
 object `no-native` extends Cross[NoNativeCross](scalaVersions: _*)
 class NoNativeCross(val crossScalaVersion: String)
-    extends CrossPlatformAndScala {
+    extends CrossPlatform {
   def moduleDeps = Seq(other())
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
@@ -39,7 +39,7 @@ class NoNativeCross(val crossScalaVersion: String)
 }
 
 object core extends Cross[CoreModule](scalaVersions: _*)
-class CoreModule(val crossScalaVersion: String) extends CrossPlatformAndScala {
+class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Shared with CommonJS
@@ -48,8 +48,8 @@ class CoreModule(val crossScalaVersion: String) extends CrossPlatformAndScala {
 
 object crossScalaJSNative extends Cross[CrossScalaJSNative](scalaVersions: _*)
 class CrossScalaJSNative(val crossScalaVersion: String)
-    extends CrossPlatformAndScala {
-  def moduleDeps = Seq(core(crossScalaVersion))
+    extends CrossPlatform {
+  def moduleDeps = Seq(core())
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Cross[JS]("1.13.1")
