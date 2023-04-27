@@ -8,7 +8,7 @@ Here you can see a basic example using mill-crossplatform
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.1.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.0`
 import com.github.lolgab.mill.crossplatform._
 
 trait Common extends ScalaModule {
@@ -75,11 +75,13 @@ millSourcePath / "js-native" / "src-3"
 ### Supporting multiple Scala versions
 
 It is possible to use `CrossPlatform` together with `Cross`
-to cross-compile for multiple Scala versions:
+to cross-compile for multiple Scala versions.
+
+#### With Mill 0.11
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.1.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.0`
 import com.github.lolgab.mill.crossplatform._
 
 trait CommonNative extends ScalaNativeModule {
@@ -89,7 +91,42 @@ trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.13.1"
 }
 
-val scalaVersions = Seq("2.13.10", "3.2.1")
+val scalaVersions = Seq("2.13.10", "3.2.2")
+
+object core extends Cross[CoreModule](scalaVersions)
+trait CoreModule extends CrossPlatform {
+  // Note `CrossPlatformCrossScalaModule` instead of `CrossPlatformScalaModule`
+  trait Shared extends CrossPlatformCrossScalaModule
+  object jvm extends Shared
+  object js extends Shared with CommonJS
+  object native extends Shared with CommonNative
+}
+
+object app extends Cross[AppModule](scalaVersions)
+trait AppModule extends CrossPlatform {
+  def moduleDeps = Seq(core())
+  trait Shared extends CrossPlatformCrossScalaModule
+  object jvm extends Shared
+  object js extends Shared with CommonJS
+  object native extends Shared with CommonNative
+}
+```
+
+#### With Mill 0.10
+
+```scala
+import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.0`
+import com.github.lolgab.mill.crossplatform._
+
+trait CommonNative extends ScalaNativeModule {
+  def scalaNativeVersion = "0.4.12"
+}
+trait CommonJS extends ScalaJSModule {
+  def scalaJSVersion = "1.13.1"
+}
+
+val scalaVersions = Seq("2.13.10", "3.2.2")
 
 object core extends Cross[CoreModule](scalaVersions: _*)
 class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
@@ -100,8 +137,8 @@ class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
   object native extends Shared with CommonNative
 }
 
-object app extends Cross[CoreModule](scalaVersions: _*)
-class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
+object app extends Cross[AppModule](scalaVersions: _*)
+class AppModule(val crossScalaVersion: String) extends CrossPlatform {
   def moduleDeps = Seq(core())
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared
@@ -116,12 +153,35 @@ It is possible to use `CrossPlatform` together with `Cross`
 in the inner modules to cross-compile for multiple Scala.js / Scala Native versions.
 Root `moduleDeps` and `compileModuleDeps` work as expected
 
+#### With Mill 0.10
+
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.1.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.0`
 import com.github.lolgab.mill.crossplatform._
 
-val scalaVersions = Seq("2.13.0", "3.2.1")
+val scalaVersions = Seq("2.13.10", "3.2.2")
+val scalaJSVersions = Seq("1.13.1")
+
+object core extends Cross[CoreModule](scalaVersions)
+trait CoreModule extends CrossPlatform {
+  trait Shared extends CrossPlatformCrossScalaModule
+  object jvm extends Shared
+  // the cross-module should have only one parameter named `val crossScalaJSVersion: String`
+  // for it to work correctly. Extend `CrossScalaJSModule` which requires it.
+  class JSModule(val crossScalaJSVersion: String) extends Shared with CrossScalaJSModule
+  object js extends Cross[JSModule](scalaJSVersions: _*)
+}
+```
+
+#### With Mill 0.10
+
+```scala
+import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.0`
+import com.github.lolgab.mill.crossplatform._
+
+val scalaVersions = Seq("2.13.10", "3.2.2")
 val scalaJSVersions = Seq("1.13.1")
 
 object core extends Cross[CoreModule](scalaVersions: _*)
@@ -142,10 +202,10 @@ This is useful, for example, when a platform doesn't support a certain Scala ver
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.1.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.0`
 import com.github.lolgab.mill.crossplatform._
 
-val scalaVersions = Seq("2.13.0", "3.2.1")
+val scalaVersions = Seq("2.13.10", "3.2.2")
 
 object core extends Cross[CoreModule](scalaVersions: _*)
 class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
