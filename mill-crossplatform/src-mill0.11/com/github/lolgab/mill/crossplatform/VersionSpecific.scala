@@ -19,7 +19,11 @@ private[crossplatform] object VersionSpecific {
     override def artifactNameParts = myArtifactNameParts
   }
   trait CrossPlatformCrossScalaModule extends CrossScalaModule {
-    override def crossValue: String = myCrossValue
+    override def crossValue: String = throw new Exception(
+      """CrossPlatformCrossScalaModule defines `def crossValue: String` only because it's required by CrossScalaModule (defined in Cross.Module[String]).
+      |You shouldn't need to use it directly. If you see this message please report a bug at https://github.com/lolgab/mill-crossplatform/issues/new""".stripMargin
+    )
+    override def crossScalaVersion: String = myCrossValue
     private[crossplatform] protected def myCrossValue: String
   }
   trait CrossPlatform extends Cross.Module[String] {
