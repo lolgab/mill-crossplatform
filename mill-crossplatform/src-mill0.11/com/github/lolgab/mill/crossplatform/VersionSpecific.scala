@@ -1,8 +1,8 @@
 package com.github.lolgab.mill.crossplatform
 
 import mill.define.Cross
-import mill.scalalib._
 import mill.scalajslib._
+import mill.scalalib._
 import mill.scalanativelib._
 
 private[crossplatform] object VersionSpecific {

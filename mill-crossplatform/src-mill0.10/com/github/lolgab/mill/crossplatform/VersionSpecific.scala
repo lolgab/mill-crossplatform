@@ -1,8 +1,8 @@
 package com.github.lolgab.mill.crossplatform
 
 import mill._
-import mill.scalalib._
 import mill.scalajslib._
+import mill.scalalib._
 import mill.scalanativelib._
 
 import scala.language.reflectiveCalls
