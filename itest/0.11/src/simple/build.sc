@@ -78,23 +78,25 @@ def verify(ev: Evaluator) = T.command {
   }
 
   locally {
-    val Result.Success(_) = execute(ev, "crossScalaJSNative[3.2.2].native[0.4.12].artifactName") {
-      case ujson.Str(result) =>
-        assert(
-          result == "crossScalaJSNative",
-          s"Wrong artifactName: $result"
-        )
-    }
+    val Result.Success(_) =
+      execute(ev, "crossScalaJSNative[3.2.2].native[0.4.12].artifactName") {
+        case ujson.Str(result) =>
+          assert(
+            result == "crossScalaJSNative",
+            s"Wrong artifactName: $result"
+          )
+      }
   }
 
   locally {
-    val Result.Success(_) = execute(ev, "crossScalaJSNative[3.2.2].js[1.13.1].artifactName") {
-      case ujson.Str(result) =>
-        assert(
-          result == "crossScalaJSNative",
-          s"Wrong artifactName: $result"
-        )
-    }
+    val Result.Success(_) =
+      execute(ev, "crossScalaJSNative[3.2.2].js[1.13.1].artifactName") {
+        case ujson.Str(result) =>
+          assert(
+            result == "crossScalaJSNative",
+            s"Wrong artifactName: $result"
+          )
+      }
   }
 
   ()
