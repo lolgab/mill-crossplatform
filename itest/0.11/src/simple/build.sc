@@ -1,4 +1,4 @@
-import $exec.plugins
+import $file.plugins
 
 import mill._
 import mill.api.Result
@@ -14,50 +14,46 @@ val scalaVersions = Seq("2.13.10", "3.2.2")
 
 trait CommonJVM extends ScalaModule
 trait CommonJS extends ScalaJSModule {
-  def scalaJSVersion = "1.13.1"
+  def scalaJSVersion = "1.12.0"
 }
 trait CommonNative extends ScalaNativeModule {
-  def scalaNativeVersion = "0.4.12"
+  def scalaNativeVersion = "0.4.7"
 }
 
-object other extends Cross[OtherCross](scalaVersions: _*)
-class OtherCross(val crossScalaVersion: String) extends CrossPlatform {
-  def moduleDeps = Seq(core(crossScalaVersion))
+object other extends Cross[OtherCross](scalaVersions)
+trait OtherCross extends CrossPlatform {
+  def moduleDeps = Seq(core())
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Shared with CommonJS
   object native extends Shared with CommonNative
 }
 
-object `no-native` extends Cross[NoNativeCross](scalaVersions: _*)
-class NoNativeCross(val crossScalaVersion: String) extends CrossPlatform {
+object `no-native` extends Cross[NoNativeCross](scalaVersions)
+trait NoNativeCross extends CrossPlatform {
   def moduleDeps = Seq(other())
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Shared with CommonJS
 }
 
-object core extends Cross[CoreModule](scalaVersions: _*)
-class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
+object core extends Cross[CoreModule](scalaVersions)
+trait CoreModule extends CrossPlatform {
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Shared with CommonJS
   object native extends Shared with CommonNative
 }
 
-object crossScalaJSNative extends Cross[CrossScalaJSNative](scalaVersions: _*)
-class CrossScalaJSNative(val crossScalaVersion: String) extends CrossPlatform {
-  def moduleDeps = Seq(core(crossScalaVersion))
+object crossScalaJSNative extends Cross[CrossScalaJSNative](scalaVersions)
+trait CrossScalaJSNative extends CrossPlatform {
+  def moduleDeps = Seq(core())
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared with CommonJVM
   object js extends Cross[JS]("1.13.1")
-  class JS(val crossScalaJSVersion: String)
-      extends Shared
-      with CrossScalaJSModule
+  trait JS extends Shared with CrossScalaJSModule
   object native extends Cross[Native]("0.4.12")
-  class Native(val crossScalaNativeVersion: String)
-      extends Shared
-      with CrossScalaNativeModule
+  trait Native extends Shared with CrossScalaNativeModule
 }
 
 def execute(ev: Evaluator, command: String)(f: ujson.Value => Unit) = {

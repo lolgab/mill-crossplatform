@@ -125,7 +125,7 @@ val scalaVersions = Seq("2.13.0", "3.2.1")
 val scalaJSVersions = Seq("1.13.1")
 
 object core extends Cross[CoreModule](scalaVersions: _*)
-class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
+class CoreModule(val crossScalaVersion: String) extends CrossPlatformAndScala {
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared
   // the cross-module should have only one parameter named `val crossScalaJSVersion: String`
