@@ -103,5 +103,16 @@ def verify(ev: Evaluator) = T.command {
       }
   }
 
+  locally {
+    val Result.Success(_) =
+      execute(ev, "crossScalaJSNative[3.2.2].js[1.13.1].scalaVersion") {
+        case ujson.Str(result) =>
+          assert(
+            result == "3.2.2",
+            s"Wrong scalaVersion: $result"
+          )
+      }
+  }
+
   ()
 }
