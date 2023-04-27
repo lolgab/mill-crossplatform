@@ -2,6 +2,8 @@ package com.github.lolgab.mill.crossplatform
 
 import mill._
 import mill.scalalib._
+import mill.scalajslib._
+import mill.scalanativelib._
 
 import scala.language.reflectiveCalls
 
@@ -23,18 +25,33 @@ private[crossplatform] object VersionSpecific {
         )
     }
   }
+  trait CrossPlatformScalaModule extends ScalaModule {
+    override def millSourcePath = super.millSourcePath / os.up
+    private[crossplatform] protected def myArtifactNameParts: Seq[String]
+    override def artifactName = myArtifactNameParts.mkString("-")
+  }
   trait CrossPlatformCrossScalaModule extends CrossScalaModule {
     override def millSourcePath = super.millSourcePath / os.up
 
     override def crossScalaVersion: String = myCrossValue
     private[crossplatform] protected def myCrossValue: String
-
-    override def artifactName: T[String] =
-      millModuleSegments.parts.dropRight(2).mkString("-")
-
   }
 
-  trait CrossPlatform {
-    private[crossplatform] def myCrossValue: String = getCrossScalaVersion(this)
+  trait CrossPlatform extends Module {
+    private[crossplatform] protected def myCrossValue: String =
+      getCrossScalaVersion(this)
+    private[crossplatform] protected def myArtifactNameParts: Seq[String] =
+      millModuleSegments.parts.init
   }
+
+  trait CrossScalaJSModule extends ScalaJSModule {
+    override def millSourcePath = super.millSourcePath / os.up
+    def crossScalaJSVersion: String
+  }
+
+  trait CrossScalaNativeModule extends ScalaNativeModule {
+    override def millSourcePath = super.millSourcePath / os.up
+    def crossScalaNativeVersion: String
+  }
+
 }

@@ -5,10 +5,6 @@ import mill.scalanativelib._
 
 trait CrossScalaNativeModule
     extends ScalaNativeModule
-    with Cross.Module[String] {
-  def crossScalaNativeVersion: String = crossValue
+    with VersionSpecific.CrossScalaNativeModule {
   override def scalaNativeVersion = crossScalaNativeVersion
-  override def artifactName: T[String] = T {
-    super.artifactName().split('-').init.mkString("-")
-  }
 }

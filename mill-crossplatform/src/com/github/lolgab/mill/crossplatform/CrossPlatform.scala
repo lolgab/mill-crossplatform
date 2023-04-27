@@ -34,10 +34,11 @@ trait CrossPlatform extends Module with VersionSpecific.CrossPlatform {
       .filter(enableModuleCondition)
       .toSeq
 
-  trait CrossPlatformScalaModule extends ScalaModule {
-    override def millSourcePath = super.millSourcePath / os.up
-    override def artifactName: T[String] =
-      millModuleSegments.parts.init.mkString("-")
+  trait CrossPlatformScalaModule
+      extends ScalaModule
+      with VersionSpecific.CrossPlatformScalaModule {
+    private[crossplatform] protected def myArtifactNameParts: Seq[String] =
+      container.myArtifactNameParts
     override def moduleDeps = super.moduleDeps ++
       container.moduleDeps.map(innerModule).asInstanceOf[Seq[this.type]]
     override def compileModuleDeps = super.compileModuleDeps ++
@@ -131,8 +132,8 @@ trait CrossPlatform extends Module with VersionSpecific.CrossPlatform {
     }
 
   trait CrossPlatformCrossScalaModule
-      extends CrossPlatformScalaModule
-      with CrossScalaModule
+      extends CrossScalaModule
+      with CrossPlatformScalaModule
       with VersionSpecific.CrossPlatformCrossScalaModule {
     private[crossplatform] protected def myCrossValue: String =
       container.myCrossValue
