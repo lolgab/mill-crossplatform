@@ -18,6 +18,23 @@ trait CrossPlatform extends Module with VersionSpecific.CrossPlatform {
   def enableJS: Boolean = true
   def enableNative: Boolean = true
 
+  private def platforms: Seq[String] = {
+    def loop(module: Module): Seq[String] = module match {
+      case _: ScalaNativeModule => Seq("native")
+      case _: ScalaJSModule     => Seq("js")
+      case _: ScalaModule       => Seq("jvm")
+      case VersionSpecific.IsCross(c) =>
+        loop(
+          VersionSpecific.getModules(c).head.asInstanceOf[Module]
+        )
+      case _ => Seq.empty[String]
+    }
+    millInternal
+      .reflectNestedObjects[Module]
+      .flatMap(m => loop(m))
+      .toSeq
+  }
+
   private def enableModuleCondition(module: Module): Boolean = module match {
     case _: ScalaNativeModule => enableNative
     case _: ScalaJSModule     => enableJS
@@ -74,10 +91,15 @@ trait CrossPlatform extends Module with VersionSpecific.CrossPlatform {
       def scalaVersionDirectoryNames: Seq[String]
     }
 
+    private def platformCombinations = {
+      val platforms = container.platforms
+      if (platforms.length <= 2) Seq.empty[Seq[String]]
+      else platforms.combinations(2).toSeq
+    }
     private def platformSources(baseDir: os.Path) = {
       Agg(
         PathRef(baseDir / platform / "src")
-      ) ++ CrossPlatform.platformCombinations
+      ) ++ platformCombinations
         .filter(_.contains(platform))
         .map(combination =>
           PathRef(
@@ -91,7 +113,7 @@ trait CrossPlatform extends Module with VersionSpecific.CrossPlatform {
             .flatMap(name =>
               Agg(
                 PathRef(baseDir / platform / s"src-$name")
-              ) ++ CrossPlatform.platformCombinations
+              ) ++ platformCombinations
                 .filter(_.contains(platform))
                 .map(combination =>
                   PathRef(
@@ -202,8 +224,6 @@ object CrossPlatform {
         throw new Exception(s"module $mod doesn't contain a jvm module")
     }
   }
-  private val platformCombinations =
-    Seq("js", "jvm", "native").combinations(2).toSeq
 
   private def checkMillVersion() = {
     val isMillVersionOk = BuildInfo.millVersion match {
