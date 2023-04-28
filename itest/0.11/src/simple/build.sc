@@ -20,6 +20,12 @@ trait CommonNative extends ScalaNativeModule {
   def scalaNativeVersion = "0.4.7"
 }
 
+object normal extends CrossPlatform {
+  object jvm extends CrossPlatformScalaModule {
+    def scalaVersion = "3.2.2"
+  }
+}
+
 object other extends Cross[OtherCross](scalaVersions)
 trait OtherCross extends CrossPlatform {
   def moduleDeps = Seq(core())
@@ -107,6 +113,28 @@ def verify(ev: Evaluator) = T.command {
             result == "3.2.2",
             s"Wrong scalaVersion: $result"
           )
+      }
+  }
+
+  locally {
+    val Result.Success(_) =
+      execute(ev, "normal.jvm.sources") { case ujson.Arr(arr) =>
+        val path = os.Path(arr.head.str.split(':').last) / os.up
+        assert(
+          path.last == "normal",
+          s"Wrong millSourcePath: $path"
+        )
+      }
+  }
+
+  locally {
+    val Result.Success(_) =
+      execute(ev, "core[3.2.2].jvm.sources") { case ujson.Arr(arr) =>
+        val path = os.Path(arr.head.str.split(':').last) / os.up
+        assert(
+          path.last == "core",
+          s"Wrong millSourcePath: $path"
+        )
       }
   }
 
