@@ -26,13 +26,10 @@ private[crossplatform] object VersionSpecific {
     }
   }
   trait CrossPlatformScalaModule extends ScalaModule {
-    override def millSourcePath = super.millSourcePath / os.up
     private[crossplatform] protected def myArtifactNameParts: Seq[String]
     override def artifactName = myArtifactNameParts.mkString("-")
   }
   trait CrossPlatformCrossScalaModule extends CrossScalaModule {
-    override def millSourcePath = super.millSourcePath / os.up
-
     override def crossScalaVersion: String = myCrossValue
     private[crossplatform] protected def myCrossValue: String
   }

@@ -54,6 +54,7 @@ trait CrossPlatform extends Module with VersionSpecific.CrossPlatform {
   trait CrossPlatformScalaModule
       extends ScalaModule
       with VersionSpecific.CrossPlatformScalaModule {
+    override def millSourcePath = super.millSourcePath / os.up
     private[crossplatform] protected def myArtifactNameParts: Seq[String] =
       container.myArtifactNameParts
     override def moduleDeps = super.moduleDeps ++
