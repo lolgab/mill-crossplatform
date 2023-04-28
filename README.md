@@ -8,7 +8,7 @@ Here you can see a basic example using mill-crossplatform
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.1`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
 trait Common extends ScalaModule {
@@ -81,7 +81,7 @@ to cross-compile for multiple Scala versions.
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.1`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
 trait CommonNative extends ScalaNativeModule {
@@ -116,7 +116,7 @@ trait AppModule extends CrossPlatform {
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.1`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
 trait CommonNative extends ScalaNativeModule {
@@ -157,7 +157,7 @@ Root `moduleDeps` and `compileModuleDeps` work as expected
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.1`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
 val scalaVersions = Seq("2.13.10", "3.2.2")
@@ -178,7 +178,7 @@ trait CoreModule extends CrossPlatform {
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.1`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
 val scalaVersions = Seq("2.13.10", "3.2.2")
@@ -202,7 +202,7 @@ This is useful, for example, when a platform doesn't support a certain Scala ver
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.1`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
 val scalaVersions = Seq("2.13.10", "3.2.2")
