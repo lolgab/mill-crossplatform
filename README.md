@@ -153,7 +153,7 @@ It is possible to use `CrossPlatform` together with `Cross`
 in the inner modules to cross-compile for multiple Scala.js / Scala Native versions.
 Root `moduleDeps` and `compileModuleDeps` work as expected
 
-#### With Mill 0.10
+#### With Mill 0.11
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
@@ -167,10 +167,9 @@ object core extends Cross[CoreModule](scalaVersions)
 trait CoreModule extends CrossPlatform {
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared
-  // the cross-module should have only one parameter named `val crossScalaJSVersion: String`
-  // for it to work correctly. Extend `CrossScalaJSModule` which requires it.
-  class JSModule(val crossScalaJSVersion: String) extends Shared with CrossScalaJSModule
-  object js extends Cross[JSModule](scalaJSVersions: _*)
+  // the cross-module should extend `CrossScalaJSModule` which requires it.
+  object js extends Cross[JSModule](scalaJSVersions)
+  trait JSModule extends Shared with CrossScalaJSModule
 }
 ```
 
@@ -190,8 +189,8 @@ class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
   object jvm extends Shared
   // the cross-module should have only one parameter named `val crossScalaJSVersion: String`
   // for it to work correctly. Extend `CrossScalaJSModule` which requires it.
-  class JSModule(val crossScalaJSVersion: String) extends Shared with CrossScalaJSModule
   object js extends Cross[JSModule](scalaJSVersions: _*)
+  class JSModule(val crossScalaJSVersion: String) extends Shared with CrossScalaJSModule
 }
 ```
 
