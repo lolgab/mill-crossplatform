@@ -167,7 +167,6 @@ object core extends Cross[CoreModule](scalaVersions)
 trait CoreModule extends CrossPlatform {
   trait Shared extends CrossPlatformCrossScalaModule
   object jvm extends Shared
-  // the cross-module should extend `CrossScalaJSModule` which requires it.
   object js extends Cross[JSModule](scalaJSVersions)
   trait JSModule extends Shared with CrossScalaJSModule
 }
