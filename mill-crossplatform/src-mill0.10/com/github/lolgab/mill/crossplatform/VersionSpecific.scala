@@ -39,6 +39,8 @@ private[crossplatform] object VersionSpecific {
       getCrossScalaVersion(this)
     private[crossplatform] protected def myArtifactNameParts: Seq[String] =
       millModuleSegments.parts.init
+    private[crossplatform] protected def myReflectNestedModules =
+      millInternal.reflectNestedObjects[Module]
   }
 
   trait CrossScalaJSModule extends ScalaJSModule {

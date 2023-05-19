@@ -1,6 +1,6 @@
 package com.github.lolgab.mill.crossplatform
 
-import mill.define.Cross
+import mill.define._
 import mill.scalajslib._
 import mill.scalalib._
 import mill.scalanativelib._
@@ -35,6 +35,8 @@ private[crossplatform] object VersionSpecific {
     private[crossplatform] protected def myCrossValue: String = crossValue
     private[crossplatform] protected def myArtifactNameParts: Seq[String] =
       millModuleSegments.parts.init
+    private[crossplatform] protected def myReflectNestedModules =
+      millInternal.reflectNestedObjects[Module]()
   }
 
   trait CrossScalaJSModule extends ScalaJSModule with Cross.Module[String] {

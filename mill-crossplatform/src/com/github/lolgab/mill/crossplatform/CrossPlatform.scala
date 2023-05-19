@@ -29,8 +29,7 @@ trait CrossPlatform extends Module with VersionSpecific.CrossPlatform {
         )
       case _ => Seq.empty[String]
     }
-    millInternal
-      .reflectNestedObjects[Module]
+    myReflectNestedModules
       .flatMap(m => loop(m))
       .toSeq
   }
@@ -46,8 +45,7 @@ trait CrossPlatform extends Module with VersionSpecific.CrossPlatform {
     case _ => true
   }
   override lazy val millModuleDirectChildren: Seq[Module] =
-    millInternal
-      .reflectNestedObjects[Module]
+    myReflectNestedModules
       .filter(enableModuleCondition)
       .toSeq
 
