@@ -2,7 +2,7 @@ import $file.plugins
 
 import mill._
 import mill.api.Result
-import mill.define.SelectMode
+import mill.resolve.SelectMode
 import mill.eval._
 import mill.main.MainModule
 import mill.scalalib._
