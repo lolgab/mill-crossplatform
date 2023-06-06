@@ -5,6 +5,7 @@ import mill.scalanativelib._
 
 trait CrossScalaNativeModule
     extends ScalaNativeModule
-    with VersionSpecific.CrossScalaNativeModule {
+    with Cross.Module[String] {
+  def crossScalaNativeVersion: String = crossValue
   override def scalaNativeVersion = crossScalaNativeVersion
 }

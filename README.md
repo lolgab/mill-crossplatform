@@ -16,7 +16,7 @@ trait Common extends ScalaModule {
 }
 
 trait CommonNative extends ScalaNativeModule {
-  def scalaNativeVersion = "0.4.12"
+  def scalaNativeVersion = "0.4.14"
 }
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.13.1"
@@ -85,7 +85,7 @@ import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
 trait CommonNative extends ScalaNativeModule {
-  def scalaNativeVersion = "0.4.12"
+  def scalaNativeVersion = "0.4.14"
 }
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.13.1"
@@ -120,7 +120,7 @@ import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
 trait CommonNative extends ScalaNativeModule {
-  def scalaNativeVersion = "0.4.12"
+  def scalaNativeVersion = "0.4.14"
 }
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.13.1"
@@ -192,11 +192,16 @@ class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
   class JSModule(val crossScalaJSVersion: String) extends Shared with CrossScalaJSModule
 }
 ```
+<!--
+Disabling platforms dynamically is currently broken in Mill 0.11 because of
+https://github.com/com-lihaoyi/mill/issues/2573
 
 ### Disabling platforms dynamically
 
 It is possible to disable a platform dynamically.
 This is useful, for example, when a platform doesn't support a certain Scala version.
+
+#### With Mill 0.11
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
@@ -205,8 +210,8 @@ import com.github.lolgab.mill.crossplatform._
 
 val scalaVersions = Seq("2.13.10", "3.2.2")
 
-object core extends Cross[CoreModule](scalaVersions: _*)
-class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
+object core extends Cross[CoreModule](scalaVersions)
+trait CoreModule extends CrossPlatform {
   trait Shared extends CrossPlatformCrossScalaModule
   
   // Enable Scala Native only for Scala 2
@@ -217,7 +222,7 @@ class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
     def scalaJSVersion = "1.13.1"
   }
   object native extends Shared with ScalaNativeModule {
-    def scalaNativeVersion = "0.4.9"
+    def scalaNativeVersion = "0.4.12"
   }
 }
-```
+``` -->
