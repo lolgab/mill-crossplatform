@@ -11,7 +11,7 @@ import mill.scalanativelib._
 import com.github.lolgab.mill.crossplatform._
 
 trait CommonJVM extends ScalaModule {
-  def scalaVersion = "2.13.10"
+  def scalaVersion = "2.13.11"
 }
 trait CommonJS extends CommonJVM with ScalaJSModule {
   def scalaJSVersion = "1.12.0"
@@ -70,7 +70,7 @@ def verify(ev: Evaluator) = T.command {
       .get
       ._2
       .str
-    assert(result == "2.13.10", s"Wrong result: $result")
+    assert(result == "2.13.11", s"Wrong result: $result")
   }
 
   locally {

@@ -8,11 +8,11 @@ Here you can see a basic example using mill-crossplatform
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.3`
 import com.github.lolgab.mill.crossplatform._
 
 trait Common extends ScalaModule {
-  def scalaVersion = "2.13.10"
+  def scalaVersion = "2.13.11"
 }
 
 trait CommonNative extends ScalaNativeModule {
@@ -81,7 +81,7 @@ to cross-compile for multiple Scala versions.
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.3`
 import com.github.lolgab.mill.crossplatform._
 
 trait CommonNative extends ScalaNativeModule {
@@ -91,7 +91,7 @@ trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.13.1"
 }
 
-val scalaVersions = Seq("2.13.10", "3.2.2")
+val scalaVersions = Seq("2.13.11", "3.3.0")
 
 object core extends Cross[CoreModule](scalaVersions)
 trait CoreModule extends CrossPlatform {
@@ -126,7 +126,7 @@ trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.13.1"
 }
 
-val scalaVersions = Seq("2.13.10", "3.2.2")
+val scalaVersions = Seq("2.13.11", "3.3.0")
 
 object core extends Cross[CoreModule](scalaVersions: _*)
 class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
@@ -157,10 +157,10 @@ Root `moduleDeps` and `compileModuleDeps` work as expected
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.3`
 import com.github.lolgab.mill.crossplatform._
 
-val scalaVersions = Seq("2.13.10", "3.2.2")
+val scalaVersions = Seq("2.13.11", "3.3.0")
 val scalaJSVersions = Seq("1.13.1")
 
 object core extends Cross[CoreModule](scalaVersions)
@@ -179,7 +179,7 @@ import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
-val scalaVersions = Seq("2.13.10", "3.2.2")
+val scalaVersions = Seq("2.13.11", "3.3.0")
 val scalaJSVersions = Seq("1.13.1")
 
 object core extends Cross[CoreModule](scalaVersions: _*)
@@ -192,9 +192,6 @@ class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
   class JSModule(val crossScalaJSVersion: String) extends Shared with CrossScalaJSModule
 }
 ```
-<!--
-Disabling platforms dynamically is currently broken in Mill 0.11 because of
-https://github.com/com-lihaoyi/mill/issues/2573
 
 ### Disabling platforms dynamically
 
@@ -208,10 +205,36 @@ import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
 import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
-val scalaVersions = Seq("2.13.10", "3.2.2")
+val scalaVersions = Seq("2.13.11", "3.3.0")
 
 object core extends Cross[CoreModule](scalaVersions)
 trait CoreModule extends CrossPlatform {
+  trait Shared extends CrossPlatformCrossScalaModule
+  
+  // Enable Scala Native only for Scala 2
+  def enableNative = crossValue.startsWith("2.")
+
+  object jvm extends Shared
+  object js extends Shared with ScalaJSModule {
+    def scalaJSVersion = "1.13.1"
+  }
+  object native extends Shared with ScalaNativeModule {
+    def scalaNativeVersion = "0.4.12"
+  }
+}
+```
+
+#### With Mill 0.10
+
+```scala
+import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
+import com.github.lolgab.mill.crossplatform._
+
+val scalaVersions = Seq("2.13.11", "3.3.0")
+
+object core extends Cross[CoreModule](scalaVersions: _*)
+class CoreModule(crossScalaVersion: String) extends CrossPlatform {
   trait Shared extends CrossPlatformCrossScalaModule
   
   // Enable Scala Native only for Scala 2
@@ -225,4 +248,4 @@ trait CoreModule extends CrossPlatform {
     def scalaNativeVersion = "0.4.12"
   }
 }
-``` -->
+```

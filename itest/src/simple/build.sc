@@ -9,7 +9,7 @@ import mill.scalajslib._
 import mill.scalanativelib._
 import com.github.lolgab.mill.crossplatform._
 
-val scalaVersions = Seq("2.13.10", "3.2.2")
+val scalaVersions = Seq("2.13.11", "3.3.0")
 
 trait CommonJVM extends ScalaModule
 trait CommonJS extends ScalaJSModule {
@@ -21,7 +21,7 @@ trait CommonNative extends ScalaNativeModule {
 
 object normal extends CrossPlatform {
   object jvm extends CrossPlatformScalaModule {
-    def scalaVersion = "3.2.2"
+    def scalaVersion = "3.3.0"
   }
 }
 
@@ -62,10 +62,10 @@ trait CrossScalaJSNative extends CrossPlatform {
 }
 
 def verify(ev: Evaluator) = T.command {
-  `no-native`("3.2.2").jvm.compile()
+  `no-native`("3.3.0").jvm.compile()
 
   locally {
-    val result = ev.evalOrThrow()(core("3.2.2").jvm.artifactName)
+    val result = ev.evalOrThrow()(core("3.3.0").jvm.artifactName)
     assert(
       result == "core",
       s"Wrong artifactName: $result"
@@ -74,7 +74,7 @@ def verify(ev: Evaluator) = T.command {
 
   locally {
     val result = ev.evalOrThrow()(
-      crossScalaJSNative("3.2.2").native("0.4.14").artifactName
+      crossScalaJSNative("3.3.0").native("0.4.14").artifactName
     )
     assert(
       result == "crossScalaJSNative",
@@ -84,7 +84,7 @@ def verify(ev: Evaluator) = T.command {
 
   locally {
     val result =
-      ev.evalOrThrow()(crossScalaJSNative("3.2.2").js("1.13.1").artifactName)
+      ev.evalOrThrow()(crossScalaJSNative("3.3.0").js("1.13.1").artifactName)
     assert(
       result == "crossScalaJSNative",
       s"Wrong artifactName: $result"
@@ -93,9 +93,9 @@ def verify(ev: Evaluator) = T.command {
 
   locally {
     val result =
-      ev.evalOrThrow()(crossScalaJSNative("3.2.2").js("1.13.1").scalaVersion)
+      ev.evalOrThrow()(crossScalaJSNative("3.3.0").js("1.13.1").scalaVersion)
     assert(
-      result == "3.2.2",
+      result == "3.3.0",
       s"Wrong artifactName: $result"
     )
   }
@@ -109,7 +109,7 @@ def verify(ev: Evaluator) = T.command {
   }
 
   locally {
-    val path = ev.evalOrThrow()(core("3.2.2").jvm.sources).head.path / os.up
+    val path = ev.evalOrThrow()(core("3.3.0").jvm.sources).head.path / os.up
     assert(
       path.last == "core",
       s"Wrong millSourcePath: $path"
