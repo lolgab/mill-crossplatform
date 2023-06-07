@@ -11,7 +11,7 @@ import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.3.0`
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 import os.Path
 
-val millVersions = Seq("0.11.0-M11")
+val millVersions = Seq("0.11.0")
 val millBinaryVersions = millVersions.map(scalaNativeBinaryVersion)
 
 def millBinaryVersion(millVersion: String) = scalaNativeBinaryVersion(
@@ -61,7 +61,7 @@ class MillcrossplatformCross(millBinaryVersion: String)
   def scalafixIvyDeps = Agg(ivy"com.github.liancheng::organize-imports:0.6.0")
 }
 
-object itest extends Cross[itestCross]("0.11.0-M11")
+object itest extends Cross[itestCross]("0.11.0")
 class itestCross(millVersion: String) extends MillIntegrationTestModule {
   override def millSourcePath: Path = super.millSourcePath / os.up
   def millTestVersion = millVersion

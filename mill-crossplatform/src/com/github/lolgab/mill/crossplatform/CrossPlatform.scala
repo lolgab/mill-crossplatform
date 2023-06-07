@@ -1,15 +1,15 @@
 package com.github.lolgab.mill.crossplatform
 
 import mill._
+import mill.define.DynamicModule
 import mill.main.BuildInfo
-import mill.define.Cross
 import mill.scalajslib._
 import mill.scalalib._
 import mill.scalanativelib._
 
 import scala.language.reflectiveCalls
 
-trait CrossPlatform extends Cross.Module[String] {
+trait CrossPlatform extends Cross.Module[String] with DynamicModule {
   container =>
   override def crossValue: String = throw new Exception(
     """CrossPlatform defines `def crossValue: String` only because it's required by Cross.Module[String].
@@ -23,9 +23,9 @@ trait CrossPlatform extends Cross.Module[String] {
   def moduleDeps: Seq[CrossPlatform] = Seq.empty
   def compileModuleDeps: Seq[CrossPlatform] = Seq.empty
 
-  private def enableJVM: Boolean = true
-  private def enableJS: Boolean = true
-  private def enableNative: Boolean = true
+  def enableJVM: Boolean = true
+  def enableJS: Boolean = true
+  def enableNative: Boolean = true
 
   private def platforms: Seq[String] = {
     def loop(module: Module): Seq[String] = module match {
@@ -86,7 +86,7 @@ trait CrossPlatform extends Cross.Module[String] {
       super.sources() ++ platformSources(millSourcePath)
     }
 
-    trait CrossPlatformSources extends ScalaModuleTests {
+    trait CrossPlatformSources extends ScalaTests {
       override def sources = T.sources {
         super.sources() ++ platformSources(millSourcePath)
       }
@@ -234,14 +234,11 @@ object CrossPlatform {
 
   private def checkMillVersion() = {
     val isMillVersionOk = BuildInfo.millVersion match {
-      case s"0.10.$n-$_" => n.toIntOption.exists(n => n >= 9)
-      case s"0.10.$n"    => n.toIntOption.exists(n => n >= 9)
-      case s"0.1$_"      => true
-      case s"0.$_"       => false
+      case _ => true
     }
     require(
       isMillVersionOk,
-      s"Minimum supported version of Mill is `0.10.9`. You are using `${BuildInfo.millVersion}`."
+      s"Minimum supported version of Mill is `0.11.0`. You are using `${BuildInfo.millVersion}`."
     )
   }
 }
