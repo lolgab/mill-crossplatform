@@ -65,6 +65,14 @@ def verify(ev: Evaluator) = T.command {
   `no-native`("3.3.0").jvm.compile()
 
   locally {
+    val result = ev.evalOrThrow()(normal.jvm.artifactName)
+    assert(
+      result == "normal",
+      s"Wrong artifactName: $result"
+    )
+  }
+
+  locally {
     val result = ev.evalOrThrow()(core("3.3.0").jvm.artifactName)
     assert(
       result == "core",
