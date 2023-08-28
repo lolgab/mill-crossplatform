@@ -17,7 +17,7 @@ trait CrossPlatform extends Cross.Module[String] with DynamicModule {
   )
 
   private[crossplatform] protected def myArtifactNameParts: Seq[String] =
-    millModuleSegments.parts.init
+    millModuleSegments.parts
 
   CrossPlatform.checkMillVersion()
   def moduleDeps: Seq[CrossPlatform] = Seq.empty
@@ -159,6 +159,7 @@ trait CrossPlatform extends Cross.Module[String] with DynamicModule {
   trait CrossPlatformCrossScalaModule
       extends CrossScalaModule
       with CrossPlatformScalaModule {
+    override def artifactNameParts = container.myArtifactNameParts.init
     override def crossValue: String = throw new Exception(
       """CrossPlatformCrossScalaModule defines `def crossValue: String` only because it's required by CrossScalaModule (defined in Cross.Module[String]).
       |You shouldn't need to use it directly. If you see this message please report a bug at https://github.com/lolgab/mill-crossplatform/issues/new""".stripMargin
