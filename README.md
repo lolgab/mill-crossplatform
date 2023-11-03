@@ -16,7 +16,7 @@ trait Common extends ScalaModule {
 }
 
 trait CommonNative extends ScalaNativeModule {
-  def scalaNativeVersion = "0.4.14"
+  def scalaNativeVersion = "0.4.15"
 }
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.14.0"
@@ -85,7 +85,7 @@ import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
 import com.github.lolgab.mill.crossplatform._
 
 trait CommonNative extends ScalaNativeModule {
-  def scalaNativeVersion = "0.4.14"
+  def scalaNativeVersion = "0.4.15"
 }
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.14.0"
@@ -120,7 +120,7 @@ import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
 trait CommonNative extends ScalaNativeModule {
-  def scalaNativeVersion = "0.4.14"
+  def scalaNativeVersion = "0.4.15"
 }
 trait CommonJS extends ScalaJSModule {
   def scalaJSVersion = "1.14.0"
@@ -161,7 +161,7 @@ import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
 import com.github.lolgab.mill.crossplatform._
 
 val scalaVersions = Seq("2.13.12", "3.3.1")
-val scalaJSVersions = Seq("1.13.1")
+val scalaJSVersions = Seq("1.14.0")
 
 object core extends Cross[CoreModule](scalaVersions)
 trait CoreModule extends CrossPlatform {
@@ -180,7 +180,7 @@ import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
 import com.github.lolgab.mill.crossplatform._
 
 val scalaVersions = Seq("2.13.12", "3.3.1")
-val scalaJSVersions = Seq("1.13.1")
+val scalaJSVersions = Seq("1.14.0")
 
 object core extends Cross[CoreModule](scalaVersions: _*)
 class CoreModule(val crossScalaVersion: String) extends CrossPlatform {
