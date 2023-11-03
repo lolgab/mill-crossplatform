@@ -1,13 +1,14 @@
 import mill._
 
 import mill.scalalib._
-import mill.scalalib.api.Util.scalaNativeBinaryVersion
+import mill.scalalib.api.ZincWorkerUtil.scalaNativeBinaryVersion
 import mill.scalalib.publish._
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.6.1`
+import mill.main.BuildInfo
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.7.1`
 import de.tobiasroeser.mill.integrationtest._
-import $ivy.`com.goyeau::mill-scalafix::0.2.11`
+import $ivy.`com.goyeau::mill-scalafix::0.3.1`
 import com.goyeau.mill.scalafix.ScalafixModule
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.3.0`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 import os.Path
 
@@ -35,12 +36,13 @@ trait CommonPublish extends PublishModule {
 }
 
 object `mill-crossplatform`
-    extends Cross[MillcrossplatformCross](millBinaryVersions: _*)
-class MillcrossplatformCross(millBinaryVersion: String)
+    extends Cross[MillcrossplatformCross](millBinaryVersions)
+trait MillcrossplatformCross
     extends ScalaModule
     with CommonPublish
-    with ScalafixModule {
-  override def millSourcePath = super.millSourcePath / os.up
+    with ScalafixModule
+    with Cross.Module[String] {
+  def millBinaryVersion: String = crossValue
   override def artifactName = s"mill-crossplatform_mill$millBinaryVersion"
 
   override def sources = T.sources {
@@ -57,13 +59,11 @@ class MillcrossplatformCross(millBinaryVersion: String)
 
   def scalacOptions =
     super.scalacOptions() ++ Seq("-Ywarn-unused", "-deprecation", "-feature")
-
-  def scalafixIvyDeps = Agg(ivy"com.github.liancheng::organize-imports:0.6.0")
 }
 
 object itest extends Cross[itestCross]("0.11.0")
-class itestCross(millVersion: String) extends MillIntegrationTestModule {
-  override def millSourcePath: Path = super.millSourcePath / os.up
+trait itestCross extends MillIntegrationTestModule with Cross.Module[String] {
+  def millVersion: String = crossValue
   def millTestVersion = millVersion
   def pluginsUnderTest = Seq(
     `mill-crossplatform`(millBinaryVersion(millVersion))
