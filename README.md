@@ -202,7 +202,7 @@ This is useful, for example, when a platform doesn't support a certain Scala ver
 
 ```scala
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.2`
+import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
 import com.github.lolgab.mill.crossplatform._
 
 val scalaVersions = Seq("2.13.12", "3.3.1")
