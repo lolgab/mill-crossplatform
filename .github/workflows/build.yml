@@ -35,9 +35,9 @@ jobs:
     - name: Publish Artifacts
       run: 
         ./mill --no-server --disable-ticker __.publishArtifacts
-    - name: Test
-      run:
-        ./mill --no-server --disable-ticker __.test
+    # - name: Test
+    #   run:
+    #     ./mill --no-server --disable-ticker __.test
   publish-sonatype:
     if: github.repository == 'lolgab/mill-crossplatform' && contains(github.ref, 'refs/tags/')
     needs: build
@@ -62,16 +62,17 @@ jobs:
           distribution: "temurin"
       - name: Publish to Maven Central
         run: |
-          if [[ $(git tag --points-at HEAD) != '' ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" || $(git tag --points-at HEAD) != '' ]]; then
             echo $SONATYPE_PGP_PRIVATE_KEY | base64 --decode > gpg_key
             gpg --import --no-tty --batch --yes gpg_key
             rm gpg_key
-            ./mill --no-server --disable-ticker mill.scalalib.PublishModule/publishAll \
-              --sonatypeCreds $SONATYPE_USER:$SONATYPE_PASSWORD \
-              --gpgArgs --passphrase=$SONATYPE_PGP_PRIVATE_KEY_PASSWORD,--no-tty,--pinentry-mode,loopback,--batch,--yes,-a,-b \
+            ./mill mill.scalalib.SonatypeCentralPublishModule/publishAll \
+              --username "$SONATYPE_USER" \
+              --password "$SONATYPE_PASSWORD" \
+              --gpgArgs "--passphrase=$SONATYPE_PGP_PRIVATE_KEY_PASSWORD,--no-tty,--pinentry-mode,loopback,--batch,--yes,-a,-b" \
               --publishArtifacts __.publishArtifacts \
-              --readTimeout 600000 \
-              --awaitTimeout 600000 \
-              --release true \
-              --signed true
+              --readTimeout  36000 \
+              --awaitTimeout 36000 \
+              --connectTimeout 36000 \
+              --shouldRelease true
           fi

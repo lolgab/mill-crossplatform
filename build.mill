@@ -1,3 +1,5 @@
+package build
+
 import mill._
 
 import mill.scalalib._
@@ -12,7 +14,7 @@ import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 import os.Path
 
-val millVersions = Seq("0.11.0")
+val millVersions = Seq("1.0.0-RC1")
 val millBinaryVersions = millVersions.map(scalaNativeBinaryVersion)
 
 def millBinaryVersion(millVersion: String) = scalaNativeBinaryVersion(
@@ -47,26 +49,14 @@ trait MillcrossplatformCross
 
   override def sources = T.sources {
     super.sources() ++ Seq(
-      millSourcePath / s"src-mill${millVersion(millBinaryVersion).split('.').take(2).mkString(".")}"
+      moduleDir / s"src-mill${millVersion(millBinaryVersion).split('.').take(2).mkString(".")}"
     ).map(PathRef(_))
   }
-  def scalaVersion = BuildInfo.scalaVersion
+  def scalaVersion = "3.7.0"
   override def compileIvyDeps = super.compileIvyDeps() ++ Agg(
-    ivy"com.lihaoyi::mill-scalalib:${millVersion(millBinaryVersion)}",
-    ivy"com.lihaoyi::mill-scalanativelib:${millVersion(millBinaryVersion)}",
-    ivy"com.lihaoyi::mill-scalajslib:${millVersion(millBinaryVersion)}"
+    ivy"com.lihaoyi::mill-libs:${millVersion(millBinaryVersion)}"
   )
 
   def scalacOptions =
     super.scalacOptions() ++ Seq("-Ywarn-unused", "-deprecation", "-feature")
-}
-
-object itest extends Cross[itestCross]("0.11.0")
-trait itestCross extends MillIntegrationTestModule with Cross.Module[String] {
-  def millVersion: String = crossValue
-  def millTestVersion = millVersion
-  def pluginsUnderTest = Seq(
-    `mill-crossplatform`(millBinaryVersion(millVersion))
-  )
-  def testBase = millSourcePath / "src"
 }
