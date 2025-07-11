@@ -7,19 +7,22 @@ Mill Plugin to simplify Cross platform Mill projects
 Here you can see a basic example using mill-crossplatform
 
 ```scala
+//| mill-version: 1.0.0
+//| mvnDeps:
+//| - com.github.lolgab::mill-crossplatform::0.3.0
+
 import mill._, mill.scalalib._, mill.scalajslib._, mill.scalanativelib._
-import $ivy.`com.github.lolgab::mill-crossplatform::0.2.4`
 import com.github.lolgab.mill.crossplatform._
 
 trait Common extends ScalaModule {
-  def scalaVersion = "2.13.12"
+  def scalaVersion = "3.7.0"
 }
 
 trait CommonNative extends ScalaNativeModule {
-  def scalaNativeVersion = "0.4.15"
+  def scalaNativeVersion = "0.5.7"
 }
 trait CommonJS extends ScalaJSModule {
-  def scalaJSVersion = "1.14.0"
+  def scalaJSVersion = "1.19.0"
 }
 
 object core extends CrossPlatform {

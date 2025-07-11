@@ -1,13 +1,13 @@
 package com.github.lolgab.mill.crossplatform
 
 import mill._
-import mill.define.DynamicModule
+import mill.api.DynamicModule
 import mill.util.BuildInfo
 import mill.scalajslib._
 import mill.scalalib._
 import mill.scalanativelib._
 
-import scala.language.reflectiveCalls
+import scala.reflect.Selectable.reflectiveSelectable
 
 trait CrossPlatform extends Cross.Module[String] with DynamicModule {
   container =>
@@ -83,7 +83,7 @@ trait CrossPlatform extends Cross.Module[String] with DynamicModule {
     }
     private def platformSources =
       Task.Sources(
-        platformSourcesImpl(this.moduleDir).map(mill.api.Result.Success(_)) *
+        platformSourcesImpl(this.moduleDir) *
       )
     override def sources = Task {
       super.sources() ++ platformSources()
@@ -92,7 +92,7 @@ trait CrossPlatform extends Cross.Module[String] with DynamicModule {
     trait CrossPlatformSources extends ScalaTests {
       private def platformSources =
         Task.Sources(
-          platformSourcesImpl(this.moduleDir).map(mill.api.Result.Success(_)) *
+          platformSourcesImpl(this.moduleDir) *
         )
       override def sources = Task {
         super.sources() ++ platformSources()

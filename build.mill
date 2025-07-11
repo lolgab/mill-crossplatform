@@ -14,12 +14,10 @@ import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 import de.tobiasroeser.mill.vcs.version.VcsVersion
 import os.Path
 
-val millVersions = Seq("1.0.0-RC1")
-val millBinaryVersions = millVersions.map(scalaNativeBinaryVersion)
+def millBinaryVersion(millVersion: String) = millVersion.split('.').head
+val millVersions = Seq("1.0.0")
+val millBinaryVersions = millVersions.map(millBinaryVersion)
 
-def millBinaryVersion(millVersion: String) = scalaNativeBinaryVersion(
-  millVersion
-)
 def millVersion(binaryVersion: String) =
   millVersions.find(v => millBinaryVersion(v) == binaryVersion).get
 
