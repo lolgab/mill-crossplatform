@@ -1,13 +1,13 @@
 package com.github.lolgab.mill.crossplatform
 
 import mill._
-import mill.define.DynamicModule
-import mill.main.BuildInfo
+import mill.api.DynamicModule
+import mill.util.BuildInfo
 import mill.scalajslib._
 import mill.scalalib._
 import mill.scalanativelib._
 
-import scala.language.reflectiveCalls
+import scala.reflect.Selectable.reflectiveSelectable
 
 trait CrossPlatform extends Cross.Module[String] with DynamicModule {
   container =>
@@ -17,7 +17,7 @@ trait CrossPlatform extends Cross.Module[String] with DynamicModule {
   )
 
   private[crossplatform] protected def myArtifactNameParts: Seq[String] =
-    millModuleSegments.parts
+    moduleSegments.parts
 
   CrossPlatform.checkMillVersion()
   def moduleDeps: Seq[CrossPlatform] = Seq.empty
@@ -38,7 +38,7 @@ trait CrossPlatform extends Cross.Module[String] with DynamicModule {
         )
       case _ => Seq.empty[String]
     }
-    millInternal
+    moduleInternal
       .reflectNestedObjects[Module]()
       .flatMap(m => loop(m))
       .toSeq
@@ -54,13 +54,12 @@ trait CrossPlatform extends Cross.Module[String] with DynamicModule {
       )
     case _ => true
   }
-  override def millModuleDirectChildren: Seq[Module] =
-    super.millModuleDirectChildren
-      .filter(enableModuleCondition)
+  override def moduleDirectChildren: Seq[Module] =
+    super.moduleDirectChildren.filter(enableModuleCondition)
 
   trait CrossPlatformScalaModule extends ScalaModule {
     override def artifactNameParts = container.myArtifactNameParts
-    override def millSourcePath = super.millSourcePath / os.up
+    override def moduleDir = super.moduleDir / os.up
     override def moduleDeps = super.moduleDeps ++
       container.moduleDeps.map(innerModule).asInstanceOf[Seq[this.type]]
     override def compileModuleDeps = super.compileModuleDeps ++
@@ -82,13 +81,21 @@ trait CrossPlatform extends Cross.Module[String] with DynamicModule {
       case _: ScalaJSModule     => "js"
       case _: ScalaModule       => "jvm"
     }
-    override def sources = T.sources {
-      super.sources() ++ platformSources(millSourcePath)
+    private def platformSources =
+      Task.Sources(
+        platformSourcesImpl(this.moduleDir) *
+      )
+    override def sources = Task {
+      super.sources() ++ platformSources()
     }
 
     trait CrossPlatformSources extends ScalaTests {
-      override def sources = T.sources {
-        super.sources() ++ platformSources(millSourcePath)
+      private def platformSources =
+        Task.Sources(
+          platformSourcesImpl(this.moduleDir) *
+        )
+      override def sources = Task {
+        super.sources() ++ platformSources()
       }
     }
 
@@ -101,32 +108,26 @@ trait CrossPlatform extends Cross.Module[String] with DynamicModule {
       if (platforms.length <= 2) Seq.empty[Seq[String]]
       else platforms.combinations(2).toSeq
     }
-    private def platformSources(baseDir: os.Path) = {
-      Agg(
-        PathRef(baseDir / platform / "src")
-      ) ++ platformCombinations
+    private def platformSourcesImpl(baseDir: os.Path): Seq[os.Path] = {
+      Seq(baseDir / platform / "src") ++ platformCombinations
         .filter(_.contains(platform))
         .map(combination =>
-          PathRef(
-            baseDir / combination.mkString("-") / "src"
-          )
+          baseDir / combination.mkString("-") / "src"
         ) ++ (this match {
         case _: CrossScalaModule =>
           this
             .asInstanceOf[WithDirNames]
             .scalaVersionDirectoryNames
             .flatMap(name =>
-              Agg(
-                PathRef(baseDir / platform / s"src-$name")
+              Seq(
+                baseDir / platform / s"src-$name"
               ) ++ platformCombinations
                 .filter(_.contains(platform))
                 .map(combination =>
-                  PathRef(
-                    baseDir / combination.mkString("-") / s"src-$name"
-                  )
+                  baseDir / combination.mkString("-") / s"src-$name"
                 )
             )
-        case _ => Agg()
+        case _ => Seq()
       })
     }
   }
