@@ -56,5 +56,5 @@ trait MillcrossplatformCross
   )
 
   def scalacOptions =
-    super.scalacOptions() ++ Seq("-Ywarn-unused", "-deprecation", "-feature")
+    super.scalacOptions() ++ Seq("-Wunused:all", "-deprecation", "-feature")
 }
