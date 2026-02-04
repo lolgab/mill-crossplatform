@@ -15,7 +15,7 @@ import de.tobiasroeser.mill.vcs.version.VcsVersion
 import os.Path
 
 def millBinaryVersion(millVersion: String) = millVersion.split('.').head
-val millVersions = Seq("1.0.0")
+val millVersions = Seq("1.1.1")
 val millBinaryVersions = millVersions.map(millBinaryVersion)
 
 def millVersion(binaryVersion: String) =
